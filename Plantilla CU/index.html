@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plantilla de Escenarios de Casos de Uso</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-pink-100 min-h-screen font-sketch relative">
+
+  <!-- PANTALLA DE INICIO -->
+  <div id="vistaInicio" class="flex items-center justify-center min-h-screen p-6">
+    <div class="bg-white p-8 rounded-3xl border-4 border-pink-400 shadow-2xl text-center space-y-6 max-w-xl w-full">
+      <h1 class="text-3xl font-bold text-pink-600">Plantilla de Casos de Uso</h1>
+      <p class="text-gray-600 text-sm">Selecciona un caso de uso predefinido o pulsa continuar para llenar uno nuevo.</p>
+      
+      <div class="text-left space-y-2">
+        <label class="block text-xs font-bold text-pink-700 uppercase tracking-wider">Seleccionar Caso Inicial:</label>
+        <select id="selectCasoInicial" onchange="seleccionarCasoInicial(this.value)" class="w-full p-3 rounded-xl border-2 border-pink-300 focus:border-pink-500 outline-none text-sm bg-pink-50">
+          <option value="">-- Crear Nuevo en Blanco --</option>
+          <option value="conf">1. Registrarse para la conferencia (Conf RG 003)</option>
+          <option value="auth">2. Iniciar sesión de usuario (AUTH 001)</option>
+        </select>
+      </div>
+
+      <button onclick="comenzarPlantilla()" type="button" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3.5 px-8 rounded-2xl shadow-lg transition transform hover:-translate-y-0.5 text-base cursor-pointer">
+        Ingresar al Formulario <i class="fa-solid fa-arrow-right ml-2"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- VISOR DE EJEMPLOS -->
+  <div id="vistaEjemploPDF" class="hidden fixed inset-0 bg-gray-900/80 z-50 overflow-y-auto p-4 md:p-10 flex justify-center items-start">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-gray-300 overflow-hidden my-6">
+      <div class="bg-gray-800 text-white p-4 flex justify-between items-center border-b border-gray-700">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-file-pdf text-red-400 text-xl"></i>
+          <span class="font-semibold text-sm">Vista de Ejemplos</span>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <button onclick="cargarEjemploEnFormulario()" type="button" class="bg-pink-600 hover:bg-pink-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow cursor-pointer">
+            <i class="fa-solid fa-file-import"></i> Rellenar en Formulario
+          </button>
+          
+          <button onclick="cerrarVistaPDF()" type="button" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-xs font-bold transition cursor-pointer">
+            <i class="fa-solid fa-xmark mr-1"></i> Cerrar
+          </button>
+        </div>
+      </div>
+
+      <div class="p-4 bg-gray-100 border-b border-gray-200">
+        <label class="block text-xs font-bold text-gray-700 mb-1">Seleccionar Caso de Ejemplo:</label>
+        <select id="comboEjemplosModal" onchange="verEjemploModoPDF(this.value)" class="w-full p-2 rounded-lg bg-white border border-gray-300 text-xs">
+          <option value="conf">1. Registrarse a la conferencia (Conf RG 003)</option>
+          <option value="auth">2. Iniciar sesión (AUTH 001)</option>
+        </select>
+      </div>
+
+      <div id="contenidoHojaPDF" class="p-8 space-y-6 bg-white text-gray-800 text-sm"></div>
+    </div>
+  </div>
+
+  <!-- FORMULARIO PRINCIPAL -->
+  <main id="mainContent" class="hidden p-6 max-w-5xl mx-auto w-full">
+    <!-- ENCABEZADO PRINCIPAL -->
+    <header class="no-print bg-pink-500 text-white p-4 rounded-2xl flex justify-between items-center shadow-md mb-6">
+      <h1 class="text-xl md:text-2xl font-bold">Plantilla de Escenarios de Casos de Uso</h1>
+      
+      <div class="flex gap-2">
+        <button onclick="abrirModalEjemplos()" type="button" class="bg-pink-600 hover:bg-pink-700 text-white text-xs px-3.5 py-2 rounded-xl font-bold transition shadow cursor-pointer">
+          <i class="fa-solid fa-eye mr-1"></i> Ver Ejemplos
+        </button>
+
+        <button onclick="volverAInicio()" type="button" class="bg-pink-700 hover:bg-pink-800 text-white text-xs px-3.5 py-2 rounded-xl font-semibold transition cursor-pointer">
+          <i class="fa-solid fa-house mr-1"></i> Cambiar Caso
+        </button>
+      </div>
+    </header>
+
+    <form id="useCaseForm" class="space-y-6">
+      <!-- PASO 1 -->
+      <details class="bg-pink-500 rounded-2xl overflow-hidden shadow-lg border-2 border-pink-400" open>
+        <summary class="p-4 text-white font-bold text-lg cursor-pointer flex justify-between items-center bg-pink-600 border-b-2 border-pink-700">
+          <span>Paso 1: Identificación e Iniciación (Datos Básicos)</span>
+          <i class="fa-solid fa-chevron-down no-print"></i>
+        </summary>
+        <div class="p-6 bg-white grid grid-cols-2 md:grid-cols-4 gap-6 text-sm text-gray-700">
+          <div class="col-span-2">
+            <label class="block font-bold mb-1">Nombre del caso de uso *</label>
+            <input type="text" id="nombreCaso" required class="input-custom">
+          </div>
+          <div class="col-span-2">
+            <label class="block font-bold mb-1">ID Único *</label>
+            <input type="text" id="idUnico" required placeholder="ej. Conf RG 003" class="input-custom">
+          </div>
+          <div class="col-span-2 border-t border-pink-200 pt-4">
+            <label class="block font-bold mb-1">Fecha *</label>
+            <input type="date" id="fecha" required class="input-custom">
+          </div>
+          <div class="col-span-2 border-t border-pink-200 pt-4">
+            <label class="block font-bold mb-1">Área *</label>
+            <input type="text" id="area" required class="input-custom">
+          </div>
+          <div class="col-span-2 border-t border-pink-200 pt-4">
+            <label class="block font-bold mb-1">Actor(es) *</label>
+            <input type="text" id="actores" required class="input-custom">
+          </div>
+          <div class="col-span-2 border-t border-pink-200 pt-4">
+            <label class="block font-bold mb-1">Interesados *</label>
+            <input type="text" id="interesados" required class="input-custom">
+          </div>
+          <div class="border-t border-pink-200 pt-4">
+            <label class="block font-bold mb-1">Nivel *</label>
+            <select id="nivel" required class="input-custom">
+              <option value="">Seleccionar...</option>
+              <option value="Azul (Meta de Usuario)">Azul (Meta de Usuario)</option>
+              <option value="Blanco (Resumen)">Blanco (Resumen)</option>
+              <option value="Cometa (Estratégico)">Cometa (Estratégico)</option>
+              <option value="Mar (Subfunción)">Mar (Subfunción)</option>
+              <option value="Pez (Código)">Pez (Código)</option>
+            </select>
+          </div>
+          <div class="border-t border-pink-200 pt-4">
+            <label class="block font-bold mb-1">Canal *</label>
+            <select id="canal" required class="input-custom">
+              <option value="">Seleccionar...</option>
+              <option value="Web">Web</option>
+              <option value="Móvil">Móvil</option>
+              <option value="Presencial">Presencial</option>
+            </select>
+          </div>
+          <div class="col-span-2 border-t border-pink-200 pt-4">
+            <label class="block font-bold mb-1">Interfaz *</label>
+            <select id="interfaz" required class="input-custom">
+              <option value="">Seleccionar...</option>
+              <option value="Formulario Web">Formulario Web</option>
+              <option value="Panel Admin">Panel Admin</option>
+              <option value="API REST">API REST</option>
+            </select>
+          </div>
+          <div class="col-span-4 border-t border-pink-200 pt-4">
+            <label class="block font-bold mb-1">Descripción *</label>
+            <textarea id="descripcion" required rows="2" class="input-custom"></textarea>
+          </div>
+          <div class="col-span-2 border-t border-pink-200 pt-4">
+            <label class="block font-bold mb-1">Evento desencadenador *</label>
+            <textarea id="desencadenador" required rows="2" class="input-custom"></textarea>
+          </div>
+          <div class="col-span-2 border-t border-pink-200 pt-4">
+            <label class="block font-bold mb-1">Tipo de desencadenador *</label>
+            <select id="tipoDesencadenador" required class="input-custom">
+              <option value="">Seleccionar...</option>
+              <option value="Externo">Externo</option>
+              <option value="Temporal">Temporal</option>
+              <option value="Interno del Sistema">Interno del Sistema</option>
+            </select>
+          </div>
+        </div>
+      </details>
+
+      <!-- PASO 2 -->
+      <details class="bg-pink-500 rounded-2xl overflow-hidden shadow-lg border-2 border-pink-400" open>
+        <summary class="p-4 text-white font-bold text-lg cursor-pointer flex justify-between items-center bg-pink-600 border-b-2 border-pink-700">
+          <span>Paso 2: Pasos Realizados (Flujo Principal e Información)</span>
+          <i class="fa-solid fa-chevron-down no-print"></i>
+        </summary>
+        <div class="p-6 bg-white text-sm text-gray-700 space-y-4">
+          <table class="w-full border-collapse border-2 border-pink-400">
+            <thead>
+              <tr class="bg-pink-100 text-pink-900 border-b-2 border-pink-400">
+                <th class="border-r-2 border-pink-400 p-2 w-1/2 text-left">Pasos realizados (ruta principal)</th>
+                <th class="p-2 w-1/2 text-left">Información para los pasos</th>
+              </tr>
+            </thead>
+            <tbody id="tablaPasos">
+              <tr class="border-b border-pink-200">
+                <td class="border-r-2 border-pink-300 p-1.5">
+                  <textarea required class="w-full p-1.5 outline-none paso-input input-custom" rows="2" placeholder="1. El participante inicia sesión..."></textarea>
+                </td>
+                <td class="p-1.5">
+                  <div class="flex items-center gap-2">
+                    <textarea required class="w-full p-1.5 outline-none info-input input-custom" rows="2" placeholder="ID de usuario, contraseña"></textarea>
+                    <button type="button" onclick="eliminarFilaPaso(this)" class="no-print text-red-500 hover:text-red-700 p-1 font-bold text-base cursor-pointer" title="Eliminar Paso">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <button type="button" onclick="agregarFilaPaso()" class="bg-pink-500 hover:bg-pink-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold no-print cursor-pointer">+ Agregar Paso</button>
+
+          <div class="grid grid-cols-2 gap-4 border-t-2 border-pink-200 pt-4">
+            <div>
+              <label class="block font-bold mb-1">Flujos alternativos y excepciones *</label>
+              <textarea id="flujosAlt" required rows="2" class="input-custom"></textarea>
+            </div>
+            <div>
+              <label class="block font-bold mb-1">Casos de uso incluidos / extendidos *</label>
+              <select id="casosIncluidos" required class="input-custom">
+                <option value="">Seleccionar...</option>
+                <option value="Ninguno">Ninguno</option>
+                <option value="AUTH 001 - Iniciar sesión">AUTH 001 - Iniciar sesión</option>
+                <option value="PAGO 004 - Procesar Pago">PAGO 004 - Procesar Pago</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- PASO 3 -->
+      <details class="bg-pink-500 rounded-2xl overflow-hidden shadow-lg border-2 border-pink-400" open>
+        <summary class="p-4 text-white font-bold text-lg cursor-pointer flex justify-between items-center bg-pink-600 border-b-2 border-pink-700">
+          <span>Paso 3: Condiciones y Garantías</span>
+          <i class="fa-solid fa-chevron-down no-print"></i>
+        </summary>
+        <div class="p-6 bg-white grid grid-cols-2 gap-4 text-sm text-gray-700">
+          <div>
+            <label class="block font-bold mb-1">Precondiciones *</label>
+            <textarea id="precondiciones" required rows="2" class="input-custom"></textarea>
+          </div>
+          <div>
+            <label class="block font-bold mb-1">Postcondiciones *</label>
+            <textarea id="postcondiciones" required rows="2" class="input-custom"></textarea>
+          </div>
+          <div class="border-t border-pink-200 pt-3">
+            <label class="block font-bold mb-1">Suposiciones *</label>
+            <textarea id="suposiciones" required rows="2" class="input-custom"></textarea>
+          </div>
+          <div class="border-t border-pink-200 pt-3">
+            <label class="block font-bold mb-1">Garantía de éxito *</label>
+            <textarea id="garantiaExito" required rows="2" class="input-custom"></textarea>
+          </div>
+          <div class="col-span-2 border-t border-pink-200 pt-3">
+            <label class="block font-bold mb-1">Garantía mínima *</label>
+            <textarea id="garantiaMinima" required rows="2" class="input-custom"></textarea>
+          </div>
+        </div>
+      </details>
+
+      <!-- PASO 4 -->
+      <details class="bg-pink-500 rounded-2xl overflow-hidden shadow-lg border-2 border-pink-400" open>
+        <summary class="p-4 text-white font-bold text-lg cursor-pointer flex justify-between items-center bg-pink-600 border-b-2 border-pink-700">
+          <span>Paso 4: Requerimientos, Riesgo y Finalización</span>
+          <i class="fa-solid fa-chevron-down no-print"></i>
+        </summary>
+        <div class="p-6 bg-white grid grid-cols-3 gap-4 text-sm text-gray-700">
+          <div class="col-span-3">
+            <label class="block font-bold mb-1">Requerimientos cumplidos *</label>
+            <textarea id="reqCumplidos" required rows="2" class="input-custom"></textarea>
+          </div>
+          <div class="col-span-3 border-t border-pink-200 pt-3">
+            <label class="block font-bold mb-1">Cuestiones pendientes *</label>
+            <textarea id="cuestionesPendientes" required rows="2" class="input-custom"></textarea>
+          </div>
+          <div class="border-t border-pink-200 pt-3">
+            <label class="block font-bold mb-1">Frecuencia de uso *</label>
+            <select id="frecuencia" required class="input-custom">
+              <option value="">Seleccionar...</option>
+              <option value="Múltiples veces al día">Múltiples veces al día</option>
+              <option value="Diario">Diario</option>
+              <option value="Semanal">Semanal</option>
+            </select>
+          </div>
+          <div class="border-t border-pink-200 pt-3">
+            <label class="block font-bold mb-1">Prioridad *</label>
+            <select id="prioridad" required class="input-custom">
+              <option value="">Seleccionar...</option>
+              <option value="Alta">Alta</option>
+              <option value="Media">Media</option>
+              <option value="Baja">Baja</option>
+            </select>
+          </div>
+          <div class="border-t border-pink-200 pt-3">
+            <label class="block font-bold mb-1">Riesgo *</label>
+            <select id="riesgo" required class="input-custom">
+              <option value="">Seleccionar...</option>
+              <option value="Alto">Alto</option>
+              <option value="Medio">Medio</option>
+              <option value="Bajo">Bajo</option>
+            </select>
+          </div>
+          <div class="col-span-3 border-t border-pink-200 pt-3">
+            <label class="block font-bold mb-1">Notas / Observaciones *</label>
+            <textarea id="notas" required rows="2" class="input-custom"></textarea>
+          </div>
+        </div>
+      </details>
+
+      <!-- BOTÓN DE GUARDAR -->
+      <div class="no-print text-center pt-4 flex justify-center gap-4">
+        <button type="button" onclick="guardarPlantillaPDF()" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3.5 px-8 rounded-2xl shadow-lg transition transform hover:-translate-y-0.5 cursor-pointer">
+          Guardar plantilla.pdf
+        </button>
+      </div>
+
+    </form>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
