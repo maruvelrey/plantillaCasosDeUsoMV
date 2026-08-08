@@ -1,0 +1,51 @@
+.font-sketch { 
+  font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; 
+}
+
+/* ESTRUCTURA BASE */
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* ESTILOS DE CAMPOS DE ENTRADA */
+.input-custom {
+  width: 100%;
+  border: 2px solid #fbcfe8;
+  padding: 0.4rem;
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+  background-color: #ffffff;
+}
+
+.input-custom:focus {
+  border-color: #db2777;
+  box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.15);
+}
+
+
+.pdf-replace-div {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background-color: #fdf2f8;
+  border: 1px solid #f472b6;
+  padding: 6px 8px;
+  border-radius: 6px;
+  min-height: 1.8rem;
+  font-size: 0.85rem;
+  color: #1f2937;
+}
+
+/* REGLAS DE SALTO DE PÁGINA */
+details {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+tr {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
